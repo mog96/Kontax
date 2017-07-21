@@ -30,10 +30,5 @@ public class ParseApplication extends Application {
                 .clientKey(null)
                 .clientBuilder(builder)
                 .server("https://kontax-server.herokuapp.com/parse/").build());
-
-        // New test creation of object below
-        ParseObject testObject = new ParseObject("TestObject");
-        testObject.put("foo", "bar");
-        testObject.saveInBackground();
     }
 }
