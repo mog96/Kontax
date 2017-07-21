@@ -32,20 +32,33 @@ public class MainActivity extends AppCompatActivity {
 
         // LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         // mRecyclerView.setLayoutManager(layoutManager);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
 
         ParseQuery<Contact> query = ParseQuery.getQuery(Contact.class);
 
         query.findInBackground(new FindCallback<Contact>() {
             public void done(List<Contact> itemList, ParseException exception) {
                 if (exception == null) {
+
+                    displayContacts(itemList);
+
                     // Access the array of results here
                     Contact firstContact = itemList.get(0);
                     Toast.makeText(MainActivity.this, firstContact.getName() + " and many others are now available.", Toast.LENGTH_SHORT).show();
-                    mTextView.setText(itemList.toString());
                 } else {
                     Log.d("item", "Error: " + exception.getMessage());
                 }
             }
         });
+    }
+
+    public void displayContacts(List<Contact> contacts) {
+        for (Contact contact : contacts) {
+            mTextView.append(contact.getName() + "\n\n\n");
+        }
     }
 }
