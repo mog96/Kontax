@@ -19,15 +19,18 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:25.1.0'
 
     // For RecyclerView.
-    compile 'com.android.support:appcompat-v7:25.1.0'
     compile 'com.android.support:recyclerview-v7:25.1.0'
 
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-
     // For Parse Server.
+    // for logging API calls to LogCat
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.parse.bolts:bolts-android:1.4.0'
     compile 'com.parse:parse-android:1.15.1'
-    compile 'com.squareup.okhttp3:logging-interceptor:3.6.0' // for logging API calls to LogCat
+    compile 'com.squareup.okhttp3:logging-interceptor:3.6.0'
+
+    // For action button
+    compile 'com.android.support:design:25.3.1'
 }

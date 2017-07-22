@@ -2,9 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mog.kontax.kontax">
 
+    <!-- TODO (X) Add permissions for INTERNET, ACCESS_NETWORK_STATE -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <!-- TODO (X) Set application name to ".ParseApplication" to make sure ParseApplication onCreate() is run -->
     <application
         android:name=".ParseApplication"
         android:allowBackup="true"
@@ -20,6 +22,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.example.android.visualpolish.Main2Activity"
+            android:label="@string/title_activity_main2"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
