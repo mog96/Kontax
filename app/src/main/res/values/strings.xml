@@ -6,4 +6,5 @@
     <string name="email_hint">Email</string>
     <string name="action_save">Save</string>
     <string name="connection_error_message">Unable to connect :[</string>
+    <string name="action_refresh">Refresh</string>
 </resources>
