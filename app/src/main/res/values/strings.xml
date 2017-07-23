@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Kontax</string>
     <string name="title_activity_main2">Main2Activity</string>
+    <string name="name_hint">Name</string>
+    <string name="phone_hint">Phone</string>
+    <string name="email_hint">Email</string>
 </resources>
