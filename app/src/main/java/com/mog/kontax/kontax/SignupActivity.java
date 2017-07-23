@@ -47,6 +47,14 @@ public class SignupActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        // If user is logged in, skip to main activity.
+        if (ParseUser.getCurrentUser() != null) {
+            Context context = SignupActivity.this;
+            Class destinationActivity = MainActivity.class;
+            Intent intent = new Intent(context, destinationActivity);
+            startActivity(intent);
+        }
     }
 
     public void signUp(String email, String password) {
