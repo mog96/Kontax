@@ -3,11 +3,15 @@ package com.mog.kontax.kontax;
 import android.databinding.DataBindingUtil;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.mog.kontax.kontax.databinding.ActivityNewContactBinding;
+import com.parse.ParseException;
+import com.parse.SaveCallback;
 
 public class NewContactActivity extends AppCompatActivity {
 
@@ -50,6 +54,15 @@ public class NewContactActivity extends AppCompatActivity {
         String email = mBinding.emailEditText.getText().toString();
         newContact.setEmail(email);
 
-        newContact.saveInBackground();
+        newContact.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException exception) {
+                if (exception == null) {
+                    Toast.makeText(this, "Contact saved!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.d("item", "Error: " + exception.getMessage());
+                }
+            }
+        });
     }
 }
