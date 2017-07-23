@@ -1,17 +1,18 @@
 package com.mog.kontax.kontax;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
-
-import java.io.Serializable;
 
 /**
  * Created by mateogarcia on 7/21/17.
  */
 
 @ParseClassName("Contact")
-public class Contact extends ParseObject implements Serializable {
+public class Contact extends ParseObject {
     // Ensure that your subclass has a public default constructor
     public Contact() {
         super();

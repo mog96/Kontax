@@ -19,19 +19,16 @@ public class ContactDetailActivity extends AppCompatActivity {
 
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_contact_detail);
 
-        Log.d("contact detail", "APPEARED");
-
         Intent initiatingIntent = getIntent();
-        if (initiatingIntent.hasExtra(Contact.class.getName())) {
-            Contact contact = (Contact) initiatingIntent.getSerializableExtra(Contact.class.getName());
+        Bundle bundle = initiatingIntent.getExtras();
+        Log.d("contact detail", "BUNDLE: " + bundle);
 
-            Log.d("contact detail", "SET CONTACT");
+        Contact contact = bundle.getParcelable("BANANA");
 
-            // TODO: Set contact photo.
+        Log.d("contact detail", "APPEARED: " + contact.getName());
 
-            mBinding.tvName.setText(contact.getName());
-            mBinding.tvPhone.setText(contact.getPhone());
-            mBinding.tvEmail.setText(contact.getEmail());
-        }
+        mBinding.tvName.setText(contact.getName());
+        mBinding.tvPhone.setText(contact.getPhone());
+        mBinding.tvEmail.setText(contact.getEmail());
     }
 }

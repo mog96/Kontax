@@ -2,6 +2,7 @@ package com.mog.kontax.kontax;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -111,10 +112,17 @@ public class MainActivity extends AppCompatActivity implements ContactListAdapte
     }
 
     public void presentContactDetailActivity(Contact contact) {
+        Log.d("MainActivity", "PRESENTING DETAIL FOR " + contact.getName());
+
         Context context = MainActivity.this;
         Class destinationActivity = ContactDetailActivity.class;
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("BANANA", contact);
+
         Intent intent = new Intent(context, destinationActivity);
-        intent.putExtra(Contact.class.getName(), contact);
+        intent.putExtras(bundle);
+
         startActivity(intent);
     }
 

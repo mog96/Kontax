@@ -26,7 +26,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:25.1.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.parse.bolts:bolts-android:1.4.0'
-    compile 'com.parse:parse-android:1.15.1'
+    compile 'com.parse:parse-android:1.15.8'
     compile 'com.squareup.okhttp3:logging-interceptor:3.6.0'
     compile 'com.android.support:design:25.3.1'
 }
