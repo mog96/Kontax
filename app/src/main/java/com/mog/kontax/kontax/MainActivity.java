@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,7 +25,11 @@ public class MainActivity extends AppCompatActivity implements ContactListAdapte
 
     // TextView mTextView;
 
-    Toast mToast;
+    private TextView mErrorMessageDisplay;
+
+    private ProgressBar mLoadingIndicator;
+
+    private Toast mToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +37,9 @@ public class MainActivity extends AppCompatActivity implements ContactListAdapte
         setContentView(R.layout.activity_main);
 
         // mTextView = (TextView) findViewById(R.id.tv_json_display);
+
+        mErrorMessageDisplay = (TextView) findViewById(R.id.errorMessageDisplayTextView);
+        mLoadingIndicator = (ProgressBar) findViewById(R.id.loadingIndicatorProgressBar);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.contactListRecyclerView);
 
@@ -50,8 +58,11 @@ public class MainActivity extends AppCompatActivity implements ContactListAdapte
 
         ParseQuery<Contact> query = ParseQuery.getQuery(Contact.class);
 
+        mLoadingIndicator.setVisibility(View.VISIBLE);
         query.findInBackground(new FindCallback<Contact>() {
             public void done(List<Contact> itemList, ParseException exception) {
+                mLoadingIndicator.setVisibility(View.INVISIBLE);
+
                 if (exception == null) {
 
                     displayContacts(itemList);
