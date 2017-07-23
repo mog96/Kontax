@@ -37,6 +37,7 @@ public class NewContactActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.action_save) {
             saveContact();
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -58,9 +59,9 @@ public class NewContactActivity extends AppCompatActivity {
             @Override
             public void done(ParseException exception) {
                 if (exception == null) {
-                    Toast.makeText(this, "Contact saved!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Contact saved!", Toast.LENGTH_SHORT).show();
                 } else {
-                    Log.d("item", "Error: " + exception.getMessage());
+                    Log.d("new contact", "Error: " + exception.getMessage());
                 }
             }
         });

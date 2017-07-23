@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void displayContacts(List<Contact> contacts) {
+        mTextView.setText("");
         for (Contact contact : contacts) {
             mTextView.append(contact.getName() + "\n\n\n");
         }
