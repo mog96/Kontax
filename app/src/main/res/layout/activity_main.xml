@@ -5,10 +5,17 @@
     android:layout_height="match_parent"
     tools:context="com.mog.kontax.kontax.MainActivity">
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/contactListRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!--
     <TextView
         android:id="@+id/tv_json_display"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+    -->
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/floating_action_button"
@@ -19,12 +26,5 @@
         android:src="@android:drawable/ic_input_add"
         android:tint="@android:color/white"
         android:onClick="presentNewContactActivity"/>
-
-    <!--
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/contactsRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-    -->
 
 </FrameLayout>

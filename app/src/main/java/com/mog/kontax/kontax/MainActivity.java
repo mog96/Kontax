@@ -17,24 +17,31 @@ import com.parse.ParseQuery;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ContactListAdapter.ContactListItemClickListener {
 
     RecyclerView mRecyclerView;
-    ContactListAdapter mAdapter;
+    ContactListAdapter mContactListAdapter;
 
-    TextView mTextView;
+    // TextView mTextView;
+
+    Toast mToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTextView = (TextView) findViewById(R.id.tv_json_display);
+        // mTextView = (TextView) findViewById(R.id.tv_json_display);
 
-        // mRecyclerView = (RecyclerView) findViewById(R.id.contactsRecyclerView);
+        mRecyclerView = (RecyclerView) findViewById(R.id.contactListRecyclerView);
 
-        // LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        // mRecyclerView.setLayoutManager(layoutManager);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setHasFixedSize(true); // Tells RecyclerView that all list items have same size
+
+        mContactListAdapter = new ContactListAdapter(this);
+
+        mRecyclerView.setAdapter(mContactListAdapter);
     }
 
     @Override
@@ -60,16 +67,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void displayContacts(List<Contact> contacts) {
+        Contact[] contactArray = contacts.toArray(new Contact[contacts.size()]);
+        mContactListAdapter.setContacts(contactArray);
+    }
+
+    /*
+    public void displayContacts(List<Contact> contacts) {
         mTextView.setText("");
         for (Contact contact : contacts) {
             mTextView.append(contact.getName() + "\n\n\n");
         }
     }
+    */
 
     public void presentNewContactActivity(View view) {
         Context context = MainActivity.this;
         Class destinationActivity = NewContactActivity.class;
         Intent intent = new Intent(context, destinationActivity);
         startActivity(intent);
+    }
+
+    @Override
+    public void onListItemClick(int clickedItemIndex, Contact contact) {
+        if (mToast != null) {
+            mToast.cancel();
+        }
+        mToast = Toast.makeText(getApplicationContext(), "Clicked on " + contact.getName(), Toast.LENGTH_LONG);
+        mToast.show();
     }
 }

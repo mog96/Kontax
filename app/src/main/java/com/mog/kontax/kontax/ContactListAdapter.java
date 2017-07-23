@@ -11,8 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mog.kontax.kontax.databinding.ContactListItemBinding;
-
 /**
  * Created by mateogarcia on 7/20/17.
  */
@@ -21,16 +19,16 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
 
     private static final String TAG = ContactListAdapter.class.getSimpleName();
 
-    final private ListItemClickListener mOnClickListener;
+    final private ContactListItemClickListener mOnClickListener;
 
     private Contact[] mContacts;
 
-    public ContactListAdapter(ListItemClickListener listener) {
+    public ContactListAdapter(ContactListItemClickListener listener) {
         mOnClickListener = listener;
     }
 
-    public interface ListItemClickListener {
-        void onListItemClick(int clickedItemIndex);
+    public interface ContactListItemClickListener {
+        void onListItemClick(int clickedItemIndex, Contact contact);
     }
 
     public class ContactListAdapterViewHolder extends RecyclerView.ViewHolder
@@ -54,7 +52,7 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
         @Override
         public void onClick(View view) {
             int clickedIndex = getAdapterPosition();
-            mOnClickListener.onListItemClick(clickedIndex);
+            mOnClickListener.onListItemClick(clickedIndex, mContacts[clickedIndex]);
         }
     }
 
@@ -74,6 +72,9 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
 
     @Override
     public int getItemCount() {
+        if (mContacts == null) {
+            return 0;
+        }
         return mContacts.length;
     }
 
@@ -89,7 +90,7 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
         String firstName = firstAndLastName[0];
         String lastName = firstAndLastName[1];
         contactListAdapterViewHolder.firstNameTextView.setText(firstName);
-        contactListAdapterViewHolder.firstNameTextView.setText(lastName);
+        contactListAdapterViewHolder.lastNameTextView.setText(lastName);
     }
 
     public void setContacts(Contact[] contacts) {
