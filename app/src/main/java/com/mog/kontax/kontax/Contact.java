@@ -4,12 +4,14 @@ import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
+import java.io.Serializable;
+
 /**
  * Created by mateogarcia on 7/21/17.
  */
 
 @ParseClassName("Contact")
-public class Contact extends ParseObject {
+public class Contact extends ParseObject implements Serializable {
     // Ensure that your subclass has a public default constructor
     public Contact() {
         super();

@@ -93,15 +93,6 @@ public class MainActivity extends AppCompatActivity implements ContactListAdapte
         mContactListAdapter.setContacts(contactArray);
     }
 
-    /*
-    public void displayContacts(List<Contact> contacts) {
-        mTextView.setText("");
-        for (Contact contact : contacts) {
-            mTextView.append(contact.getName() + "\n\n\n");
-        }
-    }
-    */
-
     public void showRecyclerView() {
         mErrorMessageDisplay.setVisibility(View.INVISIBLE);
         mRecyclerView.setVisibility(View.VISIBLE);
@@ -119,13 +110,12 @@ public class MainActivity extends AppCompatActivity implements ContactListAdapte
         startActivity(intent);
     }
 
-    @Override
-    public void onListItemClick(int clickedItemIndex, Contact contact) {
-        if (mToast != null) {
-            mToast.cancel();
-        }
-        mToast = Toast.makeText(getApplicationContext(), "Clicked on " + contact.getName(), Toast.LENGTH_LONG);
-        mToast.show();
+    public void presentContactDetailActivity(Contact contact) {
+        Context context = MainActivity.this;
+        Class destinationActivity = ContactDetailActivity.class;
+        Intent intent = new Intent(context, destinationActivity);
+        intent.putExtra(Contact.class.getName(), contact);
+        startActivity(intent);
     }
 
     @Override
@@ -143,5 +133,17 @@ public class MainActivity extends AppCompatActivity implements ContactListAdapte
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onListItemClick(int clickedItemIndex, Contact contact) {
+        /*
+        if (mToast != null) {
+            mToast.cancel();
+        }
+        mToast = Toast.makeText(getApplicationContext(), contact.getName(), Toast.LENGTH_LONG);
+        mToast.show();
+        */
+        presentContactDetailActivity(contact);
     }
 }
