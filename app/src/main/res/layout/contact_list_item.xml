@@ -14,7 +14,7 @@
 
         <!-- Person icon -->
         <ImageView
-            android:id="@+id/personIcon"
+            android:id="@+id/photoImageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="4dp"
@@ -23,7 +23,7 @@
 
         <!-- Text views for a person's first and last name -->
         <TextView
-            android:id="@+id/firstName"
+            android:id="@+id/firstNameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="4dp"
@@ -34,7 +34,7 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/lastName"
+            android:id="@+id/lastNameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="4dp"
