@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements ContactListAdapte
                 mLoadingIndicator.setVisibility(View.INVISIBLE);
 
                 if (exception == null) {
+                    showRecyclerView();
 
                     displayContacts(itemList);
 
@@ -71,6 +72,8 @@ public class MainActivity extends AppCompatActivity implements ContactListAdapte
                     Contact firstContact = itemList.get(0);
                     Toast.makeText(MainActivity.this, firstContact.getName() + " and many others are now available.", Toast.LENGTH_SHORT).show();
                 } else {
+                    showErrorMessage();
+
                     Log.d("item", "Error: " + exception.getMessage());
                 }
             }
@@ -90,6 +93,16 @@ public class MainActivity extends AppCompatActivity implements ContactListAdapte
         }
     }
     */
+
+    public void showRecyclerView() {
+        mErrorMessageDisplay.setVisibility(View.INVISIBLE);
+        mRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    public void showErrorMessage() {
+        mRecyclerView.setVisibility(View.INVISIBLE);
+        mErrorMessageDisplay.setVisibility(View.VISIBLE);
+    }
 
     public void presentNewContactActivity(View view) {
         Context context = MainActivity.this;

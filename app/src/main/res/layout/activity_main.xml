@@ -24,6 +24,8 @@
         android:padding="16dp"
         android:text="@string/connection_error_message"
         android:textSize="20sp"
+        android:layout_gravity="center"
+        android:textAlignment="center"
         android:visibility="invisible" />
 
     <ProgressBar
