@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void presentNewContactActivity(View view) {
         Context context = MainActivity.this;
-        Class destinationActivity = ChildActivity.class;
+        Class destinationActivity = NewContactActivity.class;
         Intent intent = new Intent(context, destinationActivity);
         startActivity(intent);
     }

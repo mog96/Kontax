@@ -4,4 +4,5 @@
     <string name="name_hint">Name</string>
     <string name="phone_hint">Phone</string>
     <string name="email_hint">Email</string>
+    <string name="action_save">Save</string>
 </resources>
