@@ -28,6 +28,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:srcCompat="@android:color/transparent"
+        android:scaleType="centerCrop"
 
         app:layout_constraintTop_toTopOf="@+id/addPhotoImageButton"
         app:layout_constraintRight_toRightOf="@+id/addPhotoImageButton"
