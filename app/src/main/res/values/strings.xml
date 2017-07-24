@@ -11,4 +11,6 @@
     <string name="email_label">Email</string>
     <string name="phone_label">Phone</string>
     <string name="password_hint">Password</string>
+    <string name="action_log_in">Log In</string>
+    <string name="action_sign_up">Sign Up</string>
 </resources>
