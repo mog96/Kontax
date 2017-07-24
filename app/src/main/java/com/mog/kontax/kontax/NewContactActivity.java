@@ -2,6 +2,7 @@ package com.mog.kontax.kontax;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -26,7 +27,7 @@ import java.util.Date;
 
 public class NewContactActivity extends AppCompatActivity {
 
-    static final int REQUEST_TAKE_PHOTO = 1;
+    static final int REQUEST_IMAGE_CAPTURE = 1;
 
     ActivityNewContactBinding mBinding;
 
@@ -83,13 +84,13 @@ public class NewContactActivity extends AppCompatActivity {
     }
 
     public void takePicture(View view) {
-        dispatchTakePictureIntent();
+        dispatchImageCaptureIntent();
     }
 
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+    private void dispatchImageCaptureIntent() {
+        Intent imageCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+        if (imageCaptureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
             File photoFile = null;
             try {
@@ -103,8 +104,8 @@ public class NewContactActivity extends AppCompatActivity {
                 Uri photoURI = FileProvider.getUriForFile(this,
                         "com.mog.kontax.fileprovider",
                         photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                imageCaptureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(imageCaptureIntent, REQUEST_IMAGE_CAPTURE);
             }
         }
     }
@@ -123,5 +124,16 @@ public class NewContactActivity extends AppCompatActivity {
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            mBinding.photoImageView.setImageBitmap(imageBitmap);
+
+            // NOTE: Image file is accessible through mCurrentPhotoPath
+        }
     }
 }

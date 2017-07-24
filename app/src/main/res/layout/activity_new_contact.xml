@@ -23,6 +23,17 @@
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp" />
 
+    <ImageView
+        android:id="@+id/photoImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@android:color/transparent"
+
+        app:layout_constraintTop_toTopOf="@+id/addPhotoImageButton"
+        app:layout_constraintRight_toRightOf="@+id/addPhotoImageButton"
+        app:layout_constraintBottom_toBottomOf="@+id/addPhotoImageButton"
+        app:layout_constraintLeft_toLeftOf="@+id/addPhotoImageButton" />
+
     <EditText
         android:id="@+id/nameEditText"
         android:layout_width="0dp"
