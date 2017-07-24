@@ -15,7 +15,7 @@
         android:background="@drawable/circular_border"
         app:srcCompat="@android:drawable/ic_input_add"
         android:tint="@color/colorPrimary"
-        android:onClick="takePicture"
+        android:onClick="presentPhotoSelectionOptions"
 
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="16dp"

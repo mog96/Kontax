@@ -31,6 +31,7 @@ import java.util.Date;
 public class NewContactActivity extends AppCompatActivity {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    static final int REQUEST_PICK_IMAGE = 2;
 
     ActivityNewContactBinding mBinding;
 
@@ -86,9 +87,43 @@ public class NewContactActivity extends AppCompatActivity {
         });
     }
 
-    public void takePicture(View view) {
-        dispatchImageCaptureIntent();
+    public void presentPhotoSelectionOptions(View view) {
+        // dispatchImageCaptureIntent();
+        dispatchPickImageIntent();
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("new contact", "ENTERED ACTIVITY RESULT");
+
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Log.d("new contact", "HANDLE REQUEST_IMAGE_CAPTURE");
+
+            // Photo has been written to the file name specified in mCurrentPhotoPath.
+            // Set the photo on the image view using this helper, defined below.
+            setPhotoImageViewImage();
+
+        } else if (requestCode == REQUEST_PICK_IMAGE && resultCode == RESULT_OK) {
+            Log.d("new contact", "HANDLE REQUEST_PICK_IMAGE");
+
+            // URI of the photo selected by the user
+            mCurrentPhotoPath = data.getData().getPath();
+            setPhotoImageViewImage();
+        }
+    }
+
+    // MARK: - Pick Image from Gallery
+
+    private void dispatchPickImageIntent() {
+        Intent intent = new Intent();
+        // Show only images. No videos or anything else.
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        // Always show the chooser (if there are multiple options available).
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_PICK_IMAGE);
+    }
+
+    // MARK: - Capture Image with Camera
 
     private void dispatchImageCaptureIntent() {
         Intent imageCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -130,29 +165,9 @@ public class NewContactActivity extends AppCompatActivity {
                 storageDir      /* directory */
         );
 
-        // Save a file: path for use with ACTION_VIEW intents
+        // Save a file: path for use with ACTION_VIEW intents.
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        Log.d("new contact", "ENTERED ACTIVITY RESULT");
-
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-
-            Log.d("new contact", "ENTERED IMAGE CAPTURE HANDLER");
-
-            /*
-            // For grabbing just thumbnail. Will fail if URI added to camera intent.
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            mBinding.photoImageView.setImageBitmap(imageBitmap);
-            */
-
-            setPhotoImageViewImage();
-        }
     }
 
     private void setPhotoImageViewImage() {
@@ -176,7 +191,6 @@ public class NewContactActivity extends AppCompatActivity {
         bmOptions.inPurgeable = true;
 
         Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-
 
         ExifInterface exifInterface = null;
         try {
