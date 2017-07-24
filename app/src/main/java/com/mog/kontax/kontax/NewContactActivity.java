@@ -3,6 +3,9 @@ package com.mog.kontax.kontax;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -89,18 +92,24 @@ public class NewContactActivity extends AppCompatActivity {
 
     private void dispatchImageCaptureIntent() {
         Intent imageCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
         // Ensure that there's a camera activity to handle the intent
         if (imageCaptureIntent.resolveActivity(getPackageManager()) != null) {
+
             // Create the File where the photo should go
             File photoFile = null;
             try {
                 photoFile = createImageFile();
-            } catch (IOException ex) {
+            } catch (IOException exception) {
                 // Error occurred while creating the File
-                Toast.makeText(getApplicationContext(), "An error occurred while saving your photo :[", Toast.LENGTH_LONG).show();
+                exception.printStackTrace();
+                Log.d("image capture", "Error: " + exception.getMessage());
             }
+
             // Continue only if the File was successfully created
-            if (photoFile != null) {
+            if (photoFile == null) {
+                Toast.makeText(getApplicationContext(), "An error occurred while saving your photo :[", Toast.LENGTH_LONG).show();
+            } else {
                 Uri photoURI = FileProvider.getUriForFile(this,
                         "com.mog.kontax.fileprovider",
                         photoFile);
@@ -128,12 +137,90 @@ public class NewContactActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        Log.d("new contact", "ENTERED ACTIVITY RESULT");
+
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+
+            Log.d("new contact", "ENTERED IMAGE CAPTURE HANDLER");
+
+            /*
+            // For grabbing just thumbnail. Will fail if URI added to camera intent.
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
             mBinding.photoImageView.setImageBitmap(imageBitmap);
+            */
 
-            // NOTE: Image file is accessible through mCurrentPhotoPath
+            setPhotoImageViewImage();
         }
+    }
+
+    private void setPhotoImageViewImage() {
+        // Get the dimensions of the View
+        int targetW = mBinding.photoImageView.getWidth();
+        int targetH = mBinding.photoImageView.getHeight();
+
+        // Get the dimensions of the bitmap
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        // Determine how much to scale down the image
+        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+        // Decode the image file into a Bitmap sized to fill the View
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inPurgeable = true;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+
+
+        ExifInterface exifInterface = null;
+        try {
+            exifInterface = new ExifInterface(mCurrentPhotoPath);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+            Log.d("rotate image", "Error: " + exception.getMessage());
+        }
+
+        if (exifInterface == null) {
+            Toast.makeText(getApplicationContext(), "An error occurred while saving your photo :[", Toast.LENGTH_LONG).show();
+        } else {
+            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_UNDEFINED);
+
+            Bitmap rotatedBitmap = null;
+            switch(orientation) {
+
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    rotatedBitmap = rotateImage(bitmap, 90);
+                    break;
+
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    rotatedBitmap = rotateImage(bitmap, 180);
+                    break;
+
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    rotatedBitmap = rotateImage(bitmap, 270);
+                    break;
+
+                case ExifInterface.ORIENTATION_NORMAL:
+
+                default:
+                    break;
+            }
+
+            mBinding.photoImageView.setImageBitmap(rotatedBitmap);
+        }
+    }
+
+    private static Bitmap rotateImage(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
     }
 }
