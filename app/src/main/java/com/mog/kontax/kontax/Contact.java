@@ -24,6 +24,14 @@ public class Contact extends ParseObject {
         setName(name);
     }
 
+    public void setOwnerId() {
+        put("ownerId", ParseUser.getCurrentUser().getObjectId());
+    }
+
+    public String getOwnerId() {
+        return getString("ownerId");
+    }
+
     public void setName(String value) {
         put("name", value);
     }

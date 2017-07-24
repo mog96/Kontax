@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.mog.kontax.kontax.databinding.ActivityNewContactBinding;
 import com.parse.ParseException;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.io.File;
@@ -65,6 +66,9 @@ public class NewContactActivity extends AppCompatActivity {
 
     public void saveContact() {
         Contact newContact = new Contact();
+
+        // Sets owner to current user.
+        newContact.setOwnerId();
 
         String name = mBinding.nameEditText.getText().toString();
         newContact.setName(name);

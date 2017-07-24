@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.util.List;
 
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements ContactListAdapte
 
     public void loadContacts() {
         ParseQuery<Contact> query = ParseQuery.getQuery(Contact.class);
+        query.whereEqualTo("ownerId", ParseUser.getCurrentUser().getObjectId());
 
         mLoadingIndicator.setVisibility(View.VISIBLE);
 
@@ -78,8 +80,7 @@ public class MainActivity extends AppCompatActivity implements ContactListAdapte
                     displayContacts(itemList);
 
                     // Access the array of results here
-                    Contact firstContact = itemList.get(0);
-                    Toast.makeText(MainActivity.this, firstContact.getName() + " and many others are now available.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Phew, loaded em.", Toast.LENGTH_SHORT).show();
                 } else {
                     showErrorMessage();
 
