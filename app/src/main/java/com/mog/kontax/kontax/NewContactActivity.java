@@ -1,20 +1,26 @@
 package com.mog.kontax.kontax;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
@@ -51,8 +57,11 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
     ActivityNewContactBinding mBinding;
 
     private String mCurrentPhotoPath;
-
     private ParseFile mPhotoImageFile;
+
+    private LocationManager mLocationManager;
+    private LocationListener mLocationListener;
+    private Location mCurrentLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +69,51 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
         setContentView(R.layout.activity_new_contact);
 
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_new_contact);
+
+        mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+        mLocationListener = new LocationListener() {
+
+            // Called when a new location is found by the network location provider.
+            public void onLocationChanged(Location location) {
+                mCurrentLocation = location;
+            }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
+
+            public void onProviderEnabled(String provider) {
+            }
+
+            public void onProviderDisabled(String provider) {
+            }
+        };
+
+        // Call twice to get updates from both network _and_ GPS.
+        // Second parameter is the minimum interval between notifications, third is the minimum
+        // change in distance between notifications.
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocationListener);
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        mLocationManager.removeUpdates(mLocationListener);
     }
 
     @Override
@@ -81,6 +135,8 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
     }
 
     public void saveContact() {
+        mLocationManager.removeUpdates(mLocationListener);
+
         Contact newContact = new Contact();
 
         // Sets owner to current user.
@@ -111,7 +167,9 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
         });
     }
 
-    // MARK: - Present Dialog Asking for Photo Source
+    // MARK: - Location
+
+    // MARK: - Select Photo
 
     // TODO NOTE: How to select an image from the camera or the gallery.
     // Don't forget to add the necessary permissions. See AndroidManifest.xml
