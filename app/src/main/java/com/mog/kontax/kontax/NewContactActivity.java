@@ -217,8 +217,7 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
         bitmap.compress(Bitmap.CompressFormat.PNG,
                 100, stream);
         byte[] image = stream.toByteArray();
-        ParseFile imageFile = new ParseFile(image);
-
+        mPhotoImageFile = new ParseFile(image);
     }
 
     // MARK: - ImageView Set Image Helpers
