@@ -53,6 +53,8 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
 
     static final int RESULT_IMAGE_CAPTURE = 1;
     static final int RESULT_PICK_IMAGE = 2;
+    static final int RESULT_ACCESS_FINE_LOCATION = 3;
+    static final int RESULT_ACCESS_COARSE_LOCATION = 4;
 
     ActivityNewContactBinding mBinding;
 
@@ -89,24 +91,7 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
             }
         };
 
-        // Call twice to get updates from both network _and_ GPS.
-        // Second parameter is the minimum interval between notifications, third is the minimum
-        // change in distance between notifications.
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocationListener);
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
+        requestLocationUpdates();
     }
 
     @Override
@@ -168,6 +153,91 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
     }
 
     // MARK: - Location
+
+    private void requestLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)
+                    || ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+                // TODO: Present dialog explaining use of location
+                // TODO: Call requestLocationPermissions() helper when dialog dismissed
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                requestLocationPermissions();
+            }
+        }
+
+        // Call twice to get updates from both network _and_ GPS.
+        // Second parameter is the minimum interval between notifications, third is the minimum
+        // change in distance between notifications.
+        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocationListener);
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
+    }
+
+    private void requestLocationPermissions() {
+        ActivityCompat.requestPermissions(this,
+                new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
+                RESULT_ACCESS_FINE_LOCATION);
+        ActivityCompat.requestPermissions(this,
+                new String[] {Manifest.permission.ACCESS_COARSE_LOCATION},
+                RESULT_ACCESS_COARSE_LOCATION);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case RESULT_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                    // In our case, location updates have already been requested.
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+
+                    mLocationManager.removeUpdates(mLocationListener);
+                }
+                return;
+            }
+            case RESULT_ACCESS_COARSE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                    // In our case, location updates have already been requested.
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+
+                    mLocationManager.removeUpdates(mLocationListener);
+                }
+            }
+        }
+    }
 
     // MARK: - Select Photo
 
