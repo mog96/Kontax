@@ -155,6 +155,9 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
     // MARK: - Location
 
     private void requestLocationUpdates() {
+
+        // Before requesting location updates, check that we have location permissions.
+        // We would like to get updates from both GPS _and_ network, hence 'coarse' and 'fine'.
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this,
@@ -180,7 +183,7 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
             }
         }
 
-        // Call twice to get updates from both network _and_ GPS.
+        // Call twice to get updates from both GPS _and_ network.
         // Second parameter is the minimum interval between notifications, third is the minimum
         // change in distance between notifications.
         mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocationListener);
