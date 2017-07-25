@@ -97,6 +97,8 @@ public class NewContactActivity extends AppCompatActivity {
         });
     }
 
+    // TODO NOTE: How to select an image from the camera or the gallery.
+    // Don'e forget to add the necessary permissions. See AndroidManifest.xml
     public void presentPhotoSelectionOptions(View view) {
         // dispatchImageCaptureIntent();
         dispatchPickImageIntent();
