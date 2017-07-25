@@ -1,6 +1,9 @@
 package com.mog.kontax.kontax;
 
+import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
@@ -11,7 +14,10 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,7 +41,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class NewContactActivity extends AppCompatActivity {
+public class NewContactActivity extends AppCompatActivity implements SelectImageSourceDialogFragment.SelectImageSourceDialogListener {
 
     static final int RESULT_IMAGE_CAPTURE = 1;
     static final int RESULT_PICK_IMAGE = 2;
@@ -98,9 +104,20 @@ public class NewContactActivity extends AppCompatActivity {
     }
 
     // TODO NOTE: How to select an image from the camera or the gallery.
-    // Don'e forget to add the necessary permissions. See AndroidManifest.xml
+    // Don't forget to add the necessary permissions. See AndroidManifest.xml
     public void presentPhotoSelectionOptions(View view) {
-        // dispatchImageCaptureIntent();
+        DialogFragment dialogFragment = new SelectImageSourceDialogFragment();
+        dialogFragment.show(getSupportFragmentManager(), "selectImageSource");
+    }
+
+    // Methods implemented from dialog interface. See SelectImageSourceDialogFragment.java
+    @Override
+    public void onTakePictureSelected() {
+        dispatchImageCaptureIntent();
+    }
+
+    @Override
+    public void onChoosePictureSelected() {
         dispatchPickImageIntent();
     }
 
