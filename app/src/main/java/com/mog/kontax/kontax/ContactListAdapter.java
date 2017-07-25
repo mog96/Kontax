@@ -88,9 +88,11 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
 
         String[] firstAndLastName = contact.getName().split(" ", 2);
         String firstName = firstAndLastName[0];
-        String lastName = firstAndLastName[1];
         contactListAdapterViewHolder.firstNameTextView.setText(firstName);
-        contactListAdapterViewHolder.lastNameTextView.setText(lastName);
+        if (firstAndLastName.length > 1) {
+            String lastName = firstAndLastName[1];
+            contactListAdapterViewHolder.lastNameTextView.setText(lastName);
+        }
     }
 
     public void setContacts(Contact[] contacts) {
