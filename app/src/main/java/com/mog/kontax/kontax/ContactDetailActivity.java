@@ -37,19 +37,21 @@ public class ContactDetailActivity extends AppCompatActivity {
         mBinding.tvEmail.setText(contact.getEmail());
 
         // Load photo in background.
-        contact.getImageFile().getDataInBackground(new GetDataCallback() {
-            @Override
-            public void done(byte[] data, ParseException exception) {
-                if (exception == null) {
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                    mBinding.ivPhoto.setImageBitmap(bitmap);
+        if (contact.getImageFile() != null) {
+            contact.getImageFile().getDataInBackground(new GetDataCallback() {
+                @Override
+                public void done(byte[] data, ParseException exception) {
+                    if (exception == null) {
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                        mBinding.ivPhoto.setImageBitmap(bitmap);
 
-                    // Access the array of results here
-                    Toast.makeText(getApplicationContext(), "Phew, loaded photo.", Toast.LENGTH_SHORT).show();
-                } else {
-                    Log.d("contact detail", "Error: " + exception.getMessage());
+                        // Access the array of results here
+                        Toast.makeText(getApplicationContext(), "Phew, loaded photo.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Log.d("contact detail", "Error: " + exception.getMessage());
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 }
