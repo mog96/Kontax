@@ -29,9 +29,11 @@ import android.widget.Toast;
 
 import com.mog.kontax.kontax.databinding.ActivityNewContactBinding;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,6 +51,8 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
     ActivityNewContactBinding mBinding;
 
     private String mCurrentPhotoPath;
+
+    private ParseFile mPhotoImageFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +95,10 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
         String email = mBinding.emailEditText.getText().toString();
         newContact.setEmail(email);
 
+        if (mPhotoImageFile != null) {
+            newContact.setPhotoImageFile(mPhotoImageFile);
+        }
+
         newContact.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException exception) {
@@ -103,12 +111,16 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
         });
     }
 
+    // MARK: - Present Dialog Asking for Photo Source
+
     // TODO NOTE: How to select an image from the camera or the gallery.
     // Don't forget to add the necessary permissions. See AndroidManifest.xml
     public void presentPhotoSelectionOptions(View view) {
         DialogFragment dialogFragment = new SelectImageSourceDialogFragment();
         dialogFragment.show(getSupportFragmentManager(), "selectImageSource");
     }
+
+    // MARK: - Receive User's Source Decision and Launch Camera/Gallery
 
     // Methods implemented from dialog interface. See SelectImageSourceDialogFragment.java
     @Override
@@ -129,11 +141,6 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
         intent.setAction(Intent.ACTION_GET_CONTENT);
         // Always show the chooser (if there are multiple options available).
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), RESULT_PICK_IMAGE);
-
-        /*
-        Intent intent = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, RESULT_PICK_IMAGE);
-        */
     }
 
     // Opens camera app and passes it a filename for the captured photo.
@@ -166,6 +173,8 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
         }
     }
 
+    // MARK: - Receive Captured/Selected Image
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d("new contact", "ENTERED ACTIVITY RESULT");
@@ -179,7 +188,7 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
             // Photo is newly taken and has not been fully processed,
             // so we must rotate it ourselves.
             Bitmap rotatedBitmap = getRotatedImageBitmap(imageBitmap);
-
+            saveImageFile(rotatedBitmap);
             mBinding.photoImageView.setImageBitmap(rotatedBitmap);
 
         } else if (requestCode == RESULT_PICK_IMAGE && resultCode == RESULT_OK) {
@@ -192,12 +201,24 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
             // Dropbox or another application.
             if (selectedImagePath == null) {
                 retrievePhotoError();
-                // FIXME: Handle case where image not selected from gallery.
+                // FIXME: Handle case where image selected from application other than gallery.
             } else {
                 Bitmap imageBitmap = getImageViewSizedBitmap(selectedImagePath);
+                saveImageFile(imageBitmap);
                 mBinding.photoImageView.setImageBitmap(imageBitmap);
             }
         }
+    }
+
+    // MARK: - Save Image File to Parse Object
+
+    private void saveImageFile(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG,
+                100, stream);
+        byte[] image = stream.toByteArray();
+        ParseFile imageFile = new ParseFile(image);
+
     }
 
     // MARK: - ImageView Set Image Helpers

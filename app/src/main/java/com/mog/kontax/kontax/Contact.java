@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.parse.ParseClassName;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
@@ -24,10 +25,12 @@ public class Contact extends ParseObject {
         setName(name);
     }
 
+    // Use put to modify field values
     public void setOwnerId() {
         put("ownerId", ParseUser.getCurrentUser().getObjectId());
     }
 
+    // Use getString and others to access fields
     public String getOwnerId() {
         return getString("ownerId");
     }
@@ -40,23 +43,27 @@ public class Contact extends ParseObject {
         return getString("name");
     }
 
-    // Use getString and others to access fields
-    public String getPhone() {
-        return getString("phone");
-    }
-
-    // Use put to modify field values
     public void setPhone(String value) {
         put("phone", value);
     }
 
-    // Use getString and others to access fields
+    public String getPhone() {
+        return getString("phone");
+    }
+
+    public void setEmail(String value) {
+        put("email", value);
+    }
+
     public String getEmail() {
         return getString("email");
     }
 
-    // Use put to modify field values
-    public void setEmail(String value) {
-        put("email", value);
+    public void setPhotoImageFile(ParseFile imageFile) {
+        put("image_file", imageFile);
+    }
+
+    public ParseFile getImageFile() {
+        return getParseFile("image_file");
     }
 }
