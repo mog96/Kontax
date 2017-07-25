@@ -168,26 +168,34 @@ public class NewContactActivity extends AppCompatActivity {
 
             Uri selectedImage = data.getData();
             String selectedImagePath = getRealPathFromURI(getApplicationContext(), selectedImage);
-            Bitmap imageBitmap = getImageViewSizedBitmap(selectedImagePath);
-            mBinding.photoImageView.setImageBitmap(imageBitmap);
+
+            // Selected image is not guaranteed to have a standard file path, e.g. if selected from
+            // Dropbox or another application.
+            if (selectedImagePath == null) {
+                retrievePhotoError();
+                // FIXME: Handle case where image not selected from gallery.
+            } else {
+                Bitmap imageBitmap = getImageViewSizedBitmap(selectedImagePath);
+                mBinding.photoImageView.setImageBitmap(imageBitmap);
+            }
         }
     }
 
     // MARK: - ImageView Set Image Helpers
 
     public String getRealPathFromURI(Context context, Uri contentUri) {
-        Cursor cursor = null;
-        try {
-            String[] proj = { MediaStore.Images.Media.DATA };
-            cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
+        String imagePath = null;
+
+        String[] proj = { MediaStore.Images.Media.DATA };
+        Cursor cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
+        if (cursor != null) {
             int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            return cursor.getString(column_index);
-        } finally {
-            if (cursor != null) {
-                cursor.close();
+            if (cursor.moveToFirst()) {
+                imagePath =  cursor.getString(column_index);
             }
+            cursor.close();
         }
+        return imagePath;
     }
 
     private File createImageFile() throws IOException {
