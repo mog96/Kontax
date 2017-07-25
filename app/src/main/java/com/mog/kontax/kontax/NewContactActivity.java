@@ -1,6 +1,8 @@
 package com.mog.kontax.kontax;
 
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -26,13 +28,17 @@ import com.parse.SaveCallback;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class NewContactActivity extends AppCompatActivity {
 
-    static final int REQUEST_IMAGE_CAPTURE = 1;
-    static final int REQUEST_PICK_IMAGE = 2;
+    static final int RESULT_IMAGE_CAPTURE = 1;
+    static final int RESULT_PICK_IMAGE = 2;
 
     ActivityNewContactBinding mBinding;
 
@@ -96,39 +102,22 @@ public class NewContactActivity extends AppCompatActivity {
         dispatchPickImageIntent();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d("new contact", "ENTERED ACTIVITY RESULT");
-
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Log.d("new contact", "HANDLE REQUEST_IMAGE_CAPTURE");
-
-            // Photo has been written to the file name specified in mCurrentPhotoPath.
-            // Set the photo on the image view using this helper, defined below.
-            setPhotoImageViewImage();
-
-        } else if (requestCode == REQUEST_PICK_IMAGE && resultCode == RESULT_OK) {
-            Log.d("new contact", "HANDLE REQUEST_PICK_IMAGE");
-
-            // URI of the photo selected by the user
-            mCurrentPhotoPath = data.getData().getPath();
-            setPhotoImageViewImage();
-        }
-    }
-
-    // MARK: - Pick Image from Gallery
-
+    // Allows user to choose image source.
     private void dispatchPickImageIntent() {
         Intent intent = new Intent();
         // Show only images. No videos or anything else.
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         // Always show the chooser (if there are multiple options available).
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_PICK_IMAGE);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), RESULT_PICK_IMAGE);
+
+        /*
+        Intent intent = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, RESULT_PICK_IMAGE);
+        */
     }
 
-    // MARK: - Capture Image with Camera
-
+    // Opens camera app and passes it a filename for the captured photo.
     private void dispatchImageCaptureIntent() {
         Intent imageCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
@@ -153,7 +142,50 @@ public class NewContactActivity extends AppCompatActivity {
                         "com.mog.kontax.fileprovider",
                         photoFile);
                 imageCaptureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(imageCaptureIntent, REQUEST_IMAGE_CAPTURE);
+                startActivityForResult(imageCaptureIntent, RESULT_IMAGE_CAPTURE);
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("new contact", "ENTERED ACTIVITY RESULT");
+
+        if (requestCode == RESULT_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Log.d("new contact", "HANDLE REQUEST_IMAGE_CAPTURE");
+
+            // Photo has been written to the file name specified in mCurrentPhotoPath.
+            Bitmap imageBitmap = getImageViewSizedBitmap(mCurrentPhotoPath);
+
+            // Photo is newly taken and has not been fully processed,
+            // so we must rotate it ourselves.
+            Bitmap rotatedBitmap = getRotatedImageBitmap(imageBitmap);
+
+            mBinding.photoImageView.setImageBitmap(rotatedBitmap);
+
+        } else if (requestCode == RESULT_PICK_IMAGE && resultCode == RESULT_OK) {
+            Log.d("new contact", "HANDLE REQUEST_PICK_IMAGE");
+
+            Uri selectedImage = data.getData();
+            String selectedImagePath = getRealPathFromURI(getApplicationContext(), selectedImage);
+            Bitmap imageBitmap = getImageViewSizedBitmap(selectedImagePath);
+            mBinding.photoImageView.setImageBitmap(imageBitmap);
+        }
+    }
+
+    // MARK: - ImageView Set Image Helpers
+
+    public String getRealPathFromURI(Context context, Uri contentUri) {
+        Cursor cursor = null;
+        try {
+            String[] proj = { MediaStore.Images.Media.DATA };
+            cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(column_index);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
             }
         }
     }
@@ -174,7 +206,7 @@ public class NewContactActivity extends AppCompatActivity {
         return image;
     }
 
-    private void setPhotoImageViewImage() {
+    private Bitmap getImageViewSizedBitmap(String imageFilePath) {
         // Get the dimensions of the View
         int targetW = mBinding.photoImageView.getWidth();
         int targetH = mBinding.photoImageView.getHeight();
@@ -182,7 +214,7 @@ public class NewContactActivity extends AppCompatActivity {
         // Get the dimensions of the bitmap
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
         bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        BitmapFactory.decodeFile(imageFilePath, bmOptions);
         int photoW = bmOptions.outWidth;
         int photoH = bmOptions.outHeight;
 
@@ -194,8 +226,12 @@ public class NewContactActivity extends AppCompatActivity {
         bmOptions.inSampleSize = scaleFactor;
         bmOptions.inPurgeable = true;
 
-        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        Log.d("new contact", "SIZED BITMAP ");
 
+        return BitmapFactory.decodeFile(imageFilePath, bmOptions);
+    }
+
+    private Bitmap getRotatedImageBitmap(Bitmap imageBitmap) {
         ExifInterface exifInterface = null;
         try {
             exifInterface = new ExifInterface(mCurrentPhotoPath);
@@ -205,7 +241,9 @@ public class NewContactActivity extends AppCompatActivity {
         }
 
         if (exifInterface == null) {
-            Toast.makeText(getApplicationContext(), "An error occurred while saving your photo :[", Toast.LENGTH_LONG).show();
+            retrievePhotoError();
+            return null;
+
         } else {
             int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
                     ExifInterface.ORIENTATION_UNDEFINED);
@@ -214,15 +252,15 @@ public class NewContactActivity extends AppCompatActivity {
             switch(orientation) {
 
                 case ExifInterface.ORIENTATION_ROTATE_90:
-                    rotatedBitmap = rotateImage(bitmap, 90);
+                    rotatedBitmap = rotateImage(imageBitmap, 90);
                     break;
 
                 case ExifInterface.ORIENTATION_ROTATE_180:
-                    rotatedBitmap = rotateImage(bitmap, 180);
+                    rotatedBitmap = rotateImage(imageBitmap, 180);
                     break;
 
                 case ExifInterface.ORIENTATION_ROTATE_270:
-                    rotatedBitmap = rotateImage(bitmap, 270);
+                    rotatedBitmap = rotateImage(imageBitmap, 270);
                     break;
 
                 case ExifInterface.ORIENTATION_NORMAL:
@@ -231,7 +269,9 @@ public class NewContactActivity extends AppCompatActivity {
                     break;
             }
 
-            mBinding.photoImageView.setImageBitmap(rotatedBitmap);
+            Log.d("new contact", "ROTATED BITMAP");
+
+            return rotatedBitmap;
         }
     }
 
@@ -240,5 +280,9 @@ public class NewContactActivity extends AppCompatActivity {
         matrix.postRotate(angle);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
                 matrix, true);
+    }
+
+    private void retrievePhotoError() {
+        Toast.makeText(getApplicationContext(), "An error occurred while retreiving your photo :[", Toast.LENGTH_LONG).show();
     }
 }
