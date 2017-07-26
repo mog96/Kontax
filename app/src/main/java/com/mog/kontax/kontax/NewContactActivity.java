@@ -84,16 +84,37 @@ public class NewContactActivity extends AppCompatActivity
             public void onLocationChanged(Location location) {
                 mCurrentLocation = location;
 
-                Log.d("new contact", "LOCATION UPDATED: " + location);
+                Log.d("new contact", "LOCATION UPDATED: " + mCurrentLocation);
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    requestLocationUpdates();
+                    return;
+                }
+                mCurrentLocation = mLocationManager.getLastKnownLocation(provider);
+
+                Log.d("new contact", "LOCATION STATUS CHANGED: " + mCurrentLocation);
             }
 
             public void onProviderEnabled(String provider) {
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    requestLocationUpdates();
+                    return;
+                }
+                mCurrentLocation = mLocationManager.getLastKnownLocation(provider);
+
+                Log.d("new contact", "LAST LOCATION: " + mCurrentLocation);
             }
 
             public void onProviderDisabled(String provider) {
+
             }
         };
     }
@@ -145,6 +166,8 @@ public class NewContactActivity extends AppCompatActivity
         }
 
         if (mCurrentLocation != null) {
+            Log.d("new contact", "SAVING LOCATION: " + mCurrentLocation);
+
             ParseGeoPoint geoPoint = new ParseGeoPoint(mCurrentLocation.getLatitude(),
                     mCurrentLocation.getLongitude());
             newContact.setWhereYouMet(geoPoint);
@@ -173,26 +196,22 @@ public class NewContactActivity extends AppCompatActivity
 
         // Before requesting location updates, check that we have location permissions.
         // We would like to get updates from both GPS _and_ network, hence 'coarse' and 'fine'.
-        if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            Log.d("new contact", "LOCATION PERMISSIONS NOT GRANTED");
+        // GPS
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            Log.d("new contact", "FINE LOCATION PERMISSION NOT GRANTED");
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)
-                    || ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
 
-                Log.d("new contact", "SHOULD SHOW REQUEST PERMISSION RATIONALE");
+                Log.d("new contact", "SHOULD SHOW FINE LOCATION REQUEST PERMISSION RATIONALE");
 
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
 
-                // TODO: Present dialog explaining use of location
-                // TODO: Call requestLocationPermissions() helper when dialog dismissed
                 DialogFragment dialogFragment = new LocationRequestDialogFragment();
                 dialogFragment.show(getSupportFragmentManager(), "locationRequestPrompt");
 
@@ -200,19 +219,53 @@ public class NewContactActivity extends AppCompatActivity
 
                 // No explanation needed, we can request the permission.
 
-                Log.d("new contact", "NO PERMISSION REQUEST RATIONALE NEEDED");
+                Log.d("new contact", "NO FINE LOCATION PERMISSION REQUEST RATIONALE NEEDED");
 
                 requestLocationPermissions();
             }
+        } else {
+
+            // Second parameter is the minimum interval between notifications, third is the minimum
+            // change in distance between notifications.
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
+
+            Log.d("new contact", "FINE LOCATION UPDATES REQUESTED");
         }
 
-        // Call twice to get updates from both GPS _and_ network.
-        // Second parameter is the minimum interval between notifications, third is the minimum
-        // change in distance between notifications.
-        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocationListener);
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
+        // Network
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-        Log.d("new contact", "LOCATION UPDATES REQUESTED");
+            Log.d("new contact", "LOCATION PERMISSIONS NOT GRANTED");
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION)) {
+
+                Log.d("new contact", "SHOULD SHOW COARSE LOCATION REQUEST PERMISSION RATIONALE");
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+                DialogFragment dialogFragment = new LocationRequestDialogFragment();
+                dialogFragment.show(getSupportFragmentManager(), "locationRequestPrompt");
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                Log.d("new contact", "NO COARSE LOCATION PERMISSION REQUEST RATIONALE NEEDED");
+
+                requestLocationPermissions();
+            }
+        } else {
+            // Call twice to get updates from both GPS _and_ network.
+            // Second parameter is the minimum interval between notifications, third is the minimum
+            // change in distance between notifications.
+            mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocationListener);
+
+            Log.d("new contact", "COARSE LOCATION UPDATES REQUESTED");
+        }
     }
 
     @Override
@@ -242,7 +295,7 @@ public class NewContactActivity extends AppCompatActivity
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
 
-                    // In our case, location updates have already been requested.
+                    requestLocationUpdates();
 
                 } else {
 
@@ -261,7 +314,7 @@ public class NewContactActivity extends AppCompatActivity
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
 
-                    // In our case, location updates have already been requested.
+                    requestLocationUpdates();
 
                 } else {
 
@@ -296,6 +349,7 @@ public class NewContactActivity extends AppCompatActivity
         dispatchPickImageIntent();
     }
 
+    // FIXME: CRASHES ON MANY DEVICES
     // Allows user to choose image source.
     private void dispatchPickImageIntent() {
         Intent intent = new Intent();
