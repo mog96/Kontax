@@ -34,8 +34,10 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.mog.kontax.kontax.databinding.ActivityNewContactBinding;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -81,6 +83,8 @@ public class NewContactActivity extends AppCompatActivity
             // Called when a new location is found by the network location provider.
             public void onLocationChanged(Location location) {
                 mCurrentLocation = location;
+
+                Log.d("new contact", "LOCATION UPDATED: " + location);
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -140,6 +144,12 @@ public class NewContactActivity extends AppCompatActivity
             newContact.setPhotoImageFile(mPhotoImageFile);
         }
 
+        if (mCurrentLocation != null) {
+            ParseGeoPoint geoPoint = new ParseGeoPoint(mCurrentLocation.getLatitude(),
+                    mCurrentLocation.getLongitude());
+            newContact.setWhereYouMet(geoPoint);
+        }
+
         newContact.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException exception) {
@@ -168,10 +178,14 @@ public class NewContactActivity extends AppCompatActivity
                 && ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
+            Log.d("new contact", "LOCATION PERMISSIONS NOT GRANTED");
+
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)
                     || ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_COARSE_LOCATION)) {
+
+                Log.d("new contact", "SHOULD SHOW REQUEST PERMISSION RATIONALE");
 
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
@@ -186,6 +200,8 @@ public class NewContactActivity extends AppCompatActivity
 
                 // No explanation needed, we can request the permission.
 
+                Log.d("new contact", "NO PERMISSION REQUEST RATIONALE NEEDED");
+
                 requestLocationPermissions();
             }
         }
@@ -195,6 +211,8 @@ public class NewContactActivity extends AppCompatActivity
         // change in distance between notifications.
         mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocationListener);
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
+
+        Log.d("new contact", "LOCATION UPDATES REQUESTED");
     }
 
     @Override
@@ -209,6 +227,8 @@ public class NewContactActivity extends AppCompatActivity
         ActivityCompat.requestPermissions(this,
                 new String[] {Manifest.permission.ACCESS_COARSE_LOCATION},
                 RESULT_ACCESS_COARSE_LOCATION);
+
+        Log.d("new contact", "LOCATION PERMISSIONS REQUESTED");
     }
 
     @Override
