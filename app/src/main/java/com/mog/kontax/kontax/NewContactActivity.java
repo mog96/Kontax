@@ -382,6 +382,9 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
 
         // Save a file: path for use with ACTION_VIEW intents.
         mCurrentPhotoPath = image.getAbsolutePath();
+
+        Log.d("image capture", "IMAGE FILE: " + mCurrentPhotoPath);
+
         return image;
     }
 
@@ -425,8 +428,12 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
         if (exifInterface == null) {
             retrievePhotoError();
         } else {
+
+            // Get orientation tag, if not found return 'undefined'.
             int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
                     ExifInterface.ORIENTATION_UNDEFINED);
+
+            Log.d("new contact", "IMAGE ORIENTATION: " + orientation);
 
             switch(orientation) {
 
