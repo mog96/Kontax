@@ -49,7 +49,9 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class NewContactActivity extends AppCompatActivity implements SelectImageSourceDialogFragment.SelectImageSourceDialogListener {
+public class NewContactActivity extends AppCompatActivity
+        implements SelectImageSourceDialogFragment.SelectImageSourceDialogListener,
+        LocationRequestDialogFragment.LocationRequestDialogListener {
 
     static final int RESULT_IMAGE_CAPTURE = 1;
     static final int RESULT_PICK_IMAGE = 2;
@@ -90,8 +92,6 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
             public void onProviderDisabled(String provider) {
             }
         };
-
-        requestLocationUpdates();
     }
 
     @Override
@@ -154,6 +154,11 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
 
     // MARK: - Location
 
+    public void onLocationCheckBoxClicked(View view) {
+        Log.d("new contact", "LOCATION CHECKBOX CLICKED");
+        requestLocationUpdates();
+    }
+
     private void requestLocationUpdates() {
 
         // Before requesting location updates, check that we have location permissions.
@@ -174,6 +179,8 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
 
                 // TODO: Present dialog explaining use of location
                 // TODO: Call requestLocationPermissions() helper when dialog dismissed
+                DialogFragment dialogFragment = new LocationRequestDialogFragment();
+                dialogFragment.show(getSupportFragmentManager(), "locationRequestPrompt");
 
             } else {
 
@@ -188,6 +195,11 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
         // change in distance between notifications.
         mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocationListener);
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
+    }
+
+    @Override
+    public void onAcknowledgeLocationPermissionRequestDialog() {
+        requestLocationPermissions();
     }
 
     private void requestLocationPermissions() {

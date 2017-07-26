@@ -13,4 +13,5 @@
     <string name="password_hint">Password</string>
     <string name="action_log_in">Log In</string>
     <string name="action_sign_up">Sign Up</string>
+    <string name="cb_location">Remember where you met</string>
 </resources>
