@@ -317,15 +317,11 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
             Bitmap imageBitmap = getImageViewSizedBitmap(mCurrentPhotoPath);
 
 
-            // Photo is newly taken and has not been fully processed,
-            // so we must rotate it ourselves.
+            // Photo is newly taken and has not been fully processed.
+            // In case orientation is incorrect, we must rotate it ourselves.
             Bitmap rotatedImageBitmap = getRotatedImageBitmap(imageBitmap);
-            if (rotatedImageBitmap != null) {
-                imageBitmap = rotatedImageBitmap;
-            }
-
-            saveImageFile(imageBitmap);
-            mBinding.photoImageView.setImageBitmap(imageBitmap);
+            saveImageFile(rotatedImageBitmap);
+            mBinding.photoImageView.setImageBitmap(rotatedImageBitmap);
 
         } else if (requestCode == RESULT_PICK_IMAGE && resultCode == RESULT_OK) {
             Log.d("new contact", "HANDLE REQUEST_PICK_IMAGE");
@@ -414,8 +410,11 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
         return BitmapFactory.decodeFile(imageFilePath, bmOptions);
     }
 
+    // Attempts to rotate image bitmap, else returns it as is.
     private Bitmap getRotatedImageBitmap(Bitmap imageBitmap) {
+        Bitmap rotatedBitmap = imageBitmap;
         ExifInterface exifInterface = null;
+
         try {
             exifInterface = new ExifInterface(mCurrentPhotoPath);
         } catch (IOException exception) {
@@ -425,37 +424,35 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
 
         if (exifInterface == null) {
             retrievePhotoError();
-            return null;
-
         } else {
             int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
                     ExifInterface.ORIENTATION_UNDEFINED);
 
-            Bitmap rotatedBitmap = null;
             switch(orientation) {
 
                 case ExifInterface.ORIENTATION_ROTATE_90:
                     rotatedBitmap = rotateImage(imageBitmap, 90);
+                    Log.d("new contact", "IMAGE ROTATED 90");
                     break;
 
                 case ExifInterface.ORIENTATION_ROTATE_180:
                     rotatedBitmap = rotateImage(imageBitmap, 180);
+                    Log.d("new contact", "IMAGE ROTATED 180");
                     break;
 
                 case ExifInterface.ORIENTATION_ROTATE_270:
                     rotatedBitmap = rotateImage(imageBitmap, 270);
+                    Log.d("new contact", "IMAGE ROTATED 270");
                     break;
 
                 case ExifInterface.ORIENTATION_NORMAL:
 
                 default:
+                    Log.d("new contact", "IMAGE NOT ROTATED");
                     break;
             }
-
-            Log.d("new contact", "ROTATED BITMAP");
-
-            return rotatedBitmap;
         }
+        return rotatedBitmap;
     }
 
     private static Bitmap rotateImage(Bitmap source, float angle) {
