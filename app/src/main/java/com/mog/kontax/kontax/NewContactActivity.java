@@ -316,11 +316,16 @@ public class NewContactActivity extends AppCompatActivity implements SelectImage
             // Photo has been written to the file name specified in mCurrentPhotoPath.
             Bitmap imageBitmap = getImageViewSizedBitmap(mCurrentPhotoPath);
 
+
             // Photo is newly taken and has not been fully processed,
             // so we must rotate it ourselves.
-            Bitmap rotatedBitmap = getRotatedImageBitmap(imageBitmap);
-            saveImageFile(rotatedBitmap);
-            mBinding.photoImageView.setImageBitmap(rotatedBitmap);
+            Bitmap rotatedImageBitmap = getRotatedImageBitmap(imageBitmap);
+            if (rotatedImageBitmap != null) {
+                imageBitmap = rotatedImageBitmap;
+            }
+
+            saveImageFile(imageBitmap);
+            mBinding.photoImageView.setImageBitmap(imageBitmap);
 
         } else if (requestCode == RESULT_PICK_IMAGE && resultCode == RESULT_OK) {
             Log.d("new contact", "HANDLE REQUEST_PICK_IMAGE");
